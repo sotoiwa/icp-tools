@@ -15,13 +15,13 @@ echo "TAG_NAME: ${TAG_NAME}"
 
 # 事前にログイン済みの前提でID_TOKENを取得
 ID_TOKEN=$(cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
-echo "ID_TOKEN: ${ID_TOKEN}"
+# echo "ID_TOKEN: ${ID_TOKEN}"
 
 # ID_TOKENを使用してREPO_TOKENを取得
 REPO_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
   "https://mycluster.icp:8443/image-manager/api/v1/auth/token?service=token-service&scope=repository:${REPO_NAME}:*" \
   | jq -r '.token')
-echo "REPO_TOKEN: ${REPO_TOKEN}"
+# echo "REPO_TOKEN: ${REPO_TOKEN}"
 
 # 削除するイメージのダイジェストを取得する
 DIGEST=$(curl -s -k -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
