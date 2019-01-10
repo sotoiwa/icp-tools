@@ -14,7 +14,14 @@ echo "REPO_NAME: ${REPO_NAME}"
 echo "TAG_NAME: ${TAG_NAME}"
 
 # 事前にログイン済みの前提でID_TOKENを取得
-ID_TOKEN=$(cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
+if type cloudctl > /dev/null 2>&1; then
+  ID_TOKEN=$(cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
+elif type bx > /dev/null 2>&1; then
+  ID_TOKEN=$(bx pr tokens | grep "ID token:" | awk '{print ($3)}') 
+else
+  exit 1
+fi
+
 # echo "ID_TOKEN: ${ID_TOKEN}"
 
 # ID_TOKENを使用してREPO_TOKENを取得

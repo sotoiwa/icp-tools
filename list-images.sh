@@ -1,7 +1,13 @@
 #!/bin/bash
 
 # 事前にログイン済みの前提でID_TOKENを取得
-ID_TOKEN=$(cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
+if type cloudctl > /dev/null 2>&1; then
+  ID_TOKEN=$(cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
+elif type bx > /dev/null 2>&1; then
+  ID_TOKEN=$(bx pr tokens | grep "ID token:" | awk '{print ($3)}') 
+else
+  exit 1
+fi
 
 # ID_TOKENを使用してCATALOG_TOKENを取得
 CATALOG_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \

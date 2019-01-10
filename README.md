@@ -42,3 +42,15 @@ $
 # Exec gc
 ./registry-gc.sh run
 ```
+
+## 状況確認
+
+```
+$ ./check-nodes.sh
+ICPのNodeが正常稼働しています。
+$ ./check-pods.sh
+ICPのPodが正常稼働しています。
+$ ./check-deployments.sh
+ICPのDeploymentが正常稼働しています。
+$
+```
