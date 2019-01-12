@@ -1,5 +1,7 @@
 #!/bin/bash
 
+CLUSTER=mycluster.icp
+
 # 引数の数が1でなければエラー
 if [ $# -ne 1 ]; then
   echo "指定された引数は$#個です。" 1>&2
@@ -15,10 +17,11 @@ echo "TAG_NAME: ${TAG_NAME}"
 
 # 事前にログイン済みの前提でID_TOKENを取得
 if type cloudctl > /dev/null 2>&1; then
-  ID_TOKEN=$(cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
+  ID_TOKEN=$(cloudctl tokens | grep -e "ID token:" -e "ID トークン:" | awk '{print ($3)}')
 elif type bx > /dev/null 2>&1; then
-  ID_TOKEN=$(bx pr tokens | grep "ID token:" | awk '{print ($3)}') 
+  ID_TOKEN=$(bx pr tokens | grep "ID token:" -e "ID token:" -e "ID トークン:" | awk '{print ($3)}')
 else
+  echo "cloudctlまたはbxコマンドがありません"
   exit 1
 fi
 
@@ -26,17 +29,17 @@ fi
 
 # ID_TOKENを使用してREPO_TOKENを取得
 REPO_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
-  "https://mycluster.icp:8443/image-manager/api/v1/auth/token?service=token-service&scope=repository:${REPO_NAME}:*" \
+  "https://${CLUSTER}:8443/image-manager/api/v1/auth/token?service=token-service&scope=repository:${REPO_NAME}:*" \
   | jq -r '.token')
 # echo "REPO_TOKEN: ${REPO_TOKEN}"
 
 # 削除するイメージのダイジェストを取得する
 DIGEST=$(curl -s -k -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
   -H "Authorization: Bearer ${REPO_TOKEN}" \
-  "https://mycluster.icp:8500/v2/${REPO_NAME}/manifests/${TAG_NAME}" -v 2>&1 \
+  "https://${CLUSTER}:8500/v2/${REPO_NAME}/manifests/${TAG_NAME}" -v 2>&1 \
   | grep -i Docker-Content-Digest | awk '{print $3}')
 echo "DIGEST: ${DIGEST}"
 
 # 削除を実行
 curl -k -XDELETE -H "Authorization: Bearer ${REPO_TOKEN}" \
-  "https://mycluster.icp:8500/v2/${REPO_NAME}/manifests/${DIGEST%$'\r'}"
+  "https://${CLUSTER}:8500/v2/${REPO_NAME}/manifests/${DIGEST%$'\r'}"
