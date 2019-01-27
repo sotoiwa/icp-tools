@@ -1,7 +1,9 @@
 #!/bin/bash
 
+set -eu
+
 # 引数がrunでなければチェックのみ
-if [ -z "$1" ] || [ $1 != "run" ]; then
+if [ ${1:-default} != "run" ]; then
   # 何がGCされるかを確認する
   kubectl exec -it image-manager-0 -c icp-registry -n kube-system -- registry garbage-collect --dry-run /etc/docker/registry/config.yml
   exit 0

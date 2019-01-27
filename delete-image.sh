@@ -17,9 +17,9 @@ echo "TAG_NAME: ${TAG_NAME}"
 
 # 事前にログイン済みの前提でID_TOKENを取得
 if type cloudctl > /dev/null 2>&1; then
-  ID_TOKEN=$(cloudctl tokens | grep -e "ID token:" -e "ID トークン:" | awk '{print ($3)}')
+  ID_TOKEN=$(LANG=C cloudctl tokens | grep "ID token:" | awk '{print ($3)}')
 elif type bx > /dev/null 2>&1; then
-  ID_TOKEN=$(bx pr tokens | grep "ID token:" -e "ID token:" -e "ID トークン:" | awk '{print ($3)}')
+  ID_TOKEN=$(LANG=C bx pr tokens | grep "ID token:" | awk '{print ($3)}')
 else
   echo "cloudctlまたはbxコマンドがありません"
   exit 1
