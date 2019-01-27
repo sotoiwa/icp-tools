@@ -2,7 +2,7 @@
 
 set -eu
 
-SKIP_IBMCOM=TRUE
+SKIP_IBMCOM=true
 CLUSTER=mycluster.icp
 
 # 事前にログイン済みの前提でID_TOKENを取得
@@ -30,7 +30,7 @@ repo_list=$(curl -s -k -H "Authorization: Bearer ${CATALOG_TOKEN}" \
 for repo in ${repo_list}; do
 
   # ibmcomはスキップ
-  if [ ${SKIP_IBMCOM:-FALSE} == TRUE ] && [ $(echo ${repo} | grep "ibmcom/") ]; then
+  if ${SKIP_IBMCOM:-false} && [ $(echo ${repo} | grep "ibmcom/") ]; then
     continue
   fi
 
