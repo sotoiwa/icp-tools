@@ -1,13 +1,25 @@
 #/bin/bash
 
-for image in $(docker images --format "{{.Repository}}:{{.Tag}}")
+for image_str in $(docker images --format "{{.Repository}}:{{.Tag}}_{{.ID}}")
 do
-  while true; do
-    read -p "${image} : delete? (y/n/a):" yn
+  while true
+  do
+    id=${image_str#*_}
+    image=${image_str%_*}
+    tag=${image##*:}
+    read -p "${image}    delete? (y/n/a):" yn
     case $yn in
-      [yY]*) docker rmi ${image}; echo "deleted"; break ;;
-      [nN]*) echo "not deleted"; break ;;
-      [aA]*) echo "abort"; exit ;;
+      [yY]*)
+        if [ ${tag} = "<none>" ]; then
+          docker rmi ${id}
+        else
+          docker rmi ${image}
+        fi
+        echo "deleted"; echo ""; break ;;
+      [nN]*)
+        echo "not deleted"; echo ""; break ;;
+      [aA]*)
+        echo "abort"; echo ""; exit ;;
     esac
   done
 done
