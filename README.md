@@ -7,7 +7,7 @@
 ## イメージ確認
 
 ```shell
-$ ./list-images.sh
+$ ./pr-list-images.sh
 default/infra-test-18.0.0.3:v410
 sugi/alpine:3.8
 sugi/alpine:3.7
@@ -27,7 +27,7 @@ $
 ## イメージ削除
 
 ```
-$ ./delete-image.sh sugi/websphere-liberty:18.0.0.3-kernel
+$ ./pr-delete-image.sh sugi/websphere-liberty:18.0.0.3-kernel
 REPO_NAME: sugi/websphere-liberty
 TAG_NAME: 18.0.0.3-kernel
 DIGEST: sha256:70171e01672de8d6fda8380beb2c48da00e4099964a30134c1d41afececba6d2
@@ -38,9 +38,9 @@ $
 
 ```shell
 # Check only
-./registry-gc.sh
+./pr-gc-images.sh
 # Exec gc
-./registry-gc.sh run
+./pr-gc-images.sh run
 ```
 
 ## 状況確認
