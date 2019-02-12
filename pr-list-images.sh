@@ -2,6 +2,8 @@
 
 set -eu
 
+USERNAME=$1
+PASSWORD=$2
 SKIP_IBMCOM=true
 CLUSTER=mycluster.icp
 
@@ -17,7 +19,11 @@ fi
 # echo "ID_TOKEN: ${ID_TOKEN}"
 
 # ID_TOKENを使用してCATALOG_TOKENを取得
-CATALOG_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
+# CATALOG_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
+#   "https://${CLUSTER}:8443/image-manager/api/v1/auth/token?service=token-service&scope=registry:catalog:*" \
+#   | jq -r '.token')
+# ユーザーIDとパスワードでCATALOG_TOKENを取得
+CATALOG_TOKEN=$(curl -s -k -u ${USERNAME}:${PASSWORD} \
   "https://${CLUSTER}:8443/image-manager/api/v1/auth/token?service=token-service&scope=registry:catalog:*" \
   | jq -r '.token')
 # echo "CATALOG_TOKEN: ${CATALOG_TOKEN}"
@@ -34,7 +40,10 @@ for repo in ${repo_list}; do
     continue
   fi
 
-  REPO_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
+  # REPO_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
+  # "https://${CLUSTER}:8443/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
+  # | jq -r '.token')
+  REPO_TOKEN=$(curl -s -k -u ${USERNAME}:${PASSWORD} \
   "https://${CLUSTER}:8443/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
   | jq -r '.token')
   # echo "REPO_TOKEN: ${REPO_TOKEN}"
