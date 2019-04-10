@@ -2,7 +2,6 @@
 
 set -eu
 
-SKIP_IBMCOM=true
 CLUSTER=mycluster.icp
 
 # 事前にログイン済みの前提でID_TOKENを取得
