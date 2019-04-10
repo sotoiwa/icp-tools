@@ -18,22 +18,23 @@ fi
 # ID_TOKENを使用してCATALOG_TOKENを取得
 JSON=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
   "https://${CLUSTER}:8001/apis/metrics.k8s.io/v1beta1/pods" \
-  | jq -r '.')
+  | jq -c '.')
 
-echo $JSON \
-  | jq -r '.items[] |
-            {
-              metadata,
-              timestamp,
-              container: .containers[]
-            } |
-            [
-              .timestamp,
-              .metadata.namespace,
-              .metadata.name,
-              .container.name,
-              .container.usage.cpu
-            ] | @csv'
+echo $JSON | \
+  jq -r '.items[] |
+          {
+            metadata,
+            timestamp,
+            container: .containers[]
+          } |
+          [
+            .timestamp,
+            .metadata.namespace,
+            .metadata.name,
+            .container.name,
+            (.container.usage.cpu | rtrimstr("n")),
+            (.container.usage.memory | rtrimstr("Ki"))
+          ] | @csv'
 
 # {
 #   "kind": "PodMetricsList",
