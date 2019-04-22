@@ -57,7 +57,7 @@ Vagrant.configure("2") do |config|
     # kube-ps1
     git clone https://github.com/jonmosco/kube-ps1.git /opt/kube-ps1
     cat <<"EOF" >> /home/vagrant/.bashrc
-source /opt/kube-ps1/kube-ps1.sh" >> 
+source /opt/kube-ps1/kube-ps1.sh
 KUBE_PS1_SUFFIX=') '
 PS1='$(kube_ps1)'$PS1
 EOF
