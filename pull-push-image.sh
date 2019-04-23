@@ -2,6 +2,9 @@
 
 set -eu
 
+CLUSTER=mycluster.icp:8500
+NAMESPACE=sugi
+
 # 引数の数が1でなければエラー
 if [ $# -ne 1 ]; then
   echo "指定された引数は$#個です。" 1>&2
@@ -9,8 +12,9 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-NAMESPACE=sugi
+image=$1
+newimage=${image##*/}
 
-docker pull $1
-docker tag $1 mycluster.icp:8500/${NAMESPACE}/$1
-docker push mycluster.icp:8500/${NAMESPACE}/$1
+docker pull ${image}
+docker tag ${image} ${CLUSTER}/${NAMESPACE}/${newimage}
+docker push ${CLUSTER}/${NAMESPACE}/${newimage}
