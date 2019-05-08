@@ -29,7 +29,7 @@ do
     case $yn in
       [yY]*)
         rm -f /usr/local/bin/${COMMAND}
-        ln -s ${v_command} /usr/local/bin/helm
+        ln -s ${v_command} /usr/local/bin/${COMMAND}
         echo "${COMMAND} version changed!"
         echo ""
         echo "Current ${COMMAND} version:"
