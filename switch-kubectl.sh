@@ -2,7 +2,7 @@
 
 set -eu
 
-COMMAND=helm
+COMMAND=kubectl
 
 # コマンドがシンボリックリンクではない場合は終了
 if [ ! -L /usr/local/bin/${COMMAND} ]; then
