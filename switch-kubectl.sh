@@ -6,7 +6,7 @@ COMMAND=kubectl
 
 # コマンドがシンボリックリンクではない場合は終了
 if [ ! -L /usr/local/bin/${COMMAND} ]; then
-  echo helm is not symbolic link
+  echo ${COMMAND} is not symbolic link
   exit 1
 fi
 
