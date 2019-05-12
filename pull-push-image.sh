@@ -3,7 +3,7 @@
 set -eu
 
 CLUSTER=mycluster.icp:8500
-NAMESPACE=sugi
+NAMESPACE=liberty-guide
 
 # 引数の数が1でなければエラー
 if [ $# -ne 1 ]; then
