@@ -62,6 +62,6 @@ for repo in ${repo_list}; do
 
   curl -s -k -H "Authorization: Bearer ${repo_token}" \
     "https://${CLUSTER}:${REGISTRY_PORT}/v2/${repo}/tags/list" \
-     | jq -r 'select( .tags != null ) | "'${CLUSTER}:${RESITRY_PORT}/${repo}:'" + .tags[]'
+     | jq -r 'select( .tags != null ) | "'${CLUSTER}:${REGISTRY_PORT}/${repo}:'" + .tags[]'
 
 done
