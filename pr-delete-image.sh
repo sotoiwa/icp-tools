@@ -1,45 +1,56 @@
 #!/bin/bash
+#
+# プライベートレジストリ上のイメージを削除します。
+#
+# Usage: ./pr-delete-image.sh mycluster.icp:8500/sugi/myliberty:0.0.1
+
+set -eu
+set -o pipefail
+
+USERNAME=admin
+PASSWORD=admin
 
 CLUSTER=mycluster.icp
+REGISTRY_PORT=8500
+MGMT_INGRESS_PORT=8443
 
+CMDNAME=$(basename $0)
 # 引数の数が1でなければエラー
 if [ $# -ne 1 ]; then
-  echo "指定された引数は$#個です。" 1>&2
-  echo "実行するには1個の引数が必要です。" 1>&2
+  echo "引数が1つ必要です。" 1>&2
+  echo "Usage: ./pr-delete-image.sh mycluster.icp:8500/sugi/myliberty:0.0.1" 1>&2
   exit 1
 fi
 
-# 引数のsugi/myliberty-app:18.0.0.3をリポジトリ名とタグ名に分割
-REPO_NAME=${1%:*}
-TAG_NAME=${1##*:}
-echo "REPO_NAME: ${REPO_NAME}"
-echo "TAG_NAME: ${TAG_NAME}"
+image=$1
+repo_host=${image%%/*}
+repo_and_tag=${image#*/}
+repo=${repo_and_tag%:*}
+tag=${repo_and_tag##*:}
 
-# 事前にログイン済みの前提でID_TOKENを取得
+# 事前にログイン済みの前提でid_tokenを取得
 if type cloudctl > /dev/null 2>&1; then
-  ID_TOKEN=$(LANG=C cloudctl tokens | grep "ID token:" | awk '{print $3}')
+  id_token=$(LANG=C cloudctl tokens | grep "ID token:" | awk '{print $3}')
 elif type bx > /dev/null 2>&1; then
-  ID_TOKEN=$(LANG=C bx pr tokens | grep "ID token:" | awk '{print $3}')
+  id_token=$(LANG=C bx pr tokens | grep "ID token:" | awk '{print $3}')
 else
-  echo "cloudctlまたはbxコマンドがありません"
+  echo "cloudctlまたはbxコマンドがありません" 1>&2
   exit 1
 fi
 
-# echo "ID_TOKEN: ${ID_TOKEN}"
-
-# ID_TOKENを使用してREPO_TOKENを取得
-REPO_TOKEN=$(curl -s -k -H "Authorization: Bearer ${ID_TOKEN}" \
-  "https://${CLUSTER}:8443/image-manager/api/v1/auth/token?service=token-service&scope=repository:${REPO_NAME}:*" \
+# id_tokenでrepo_tokenを取得
+repo_token=$(curl -s -k -H "Authorization: Bearer ${id_token}" \
+  "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
   | jq -r '.token')
-# echo "REPO_TOKEN: ${REPO_TOKEN}"
+# echo "repo_token: ${repo_token}"
 
 # 削除するイメージのダイジェストを取得する
-DIGEST=$(curl -s -k -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
-  -H "Authorization: Bearer ${REPO_TOKEN}" \
-  "https://${CLUSTER}:8500/v2/${REPO_NAME}/manifests/${TAG_NAME}" -v 2>&1 \
-  | grep -i Docker-Content-Digest | awk '{print $3}')
-echo "DIGEST: ${DIGEST}"
+digest=$(curl -s -k -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+  -H "Authorization: Bearer ${repo_token}" \
+  "https://${CLUSTER}:${REGISTRY_PORT}/v2/${repo}/manifests/${tag}" -v 2>&1 \
+  | grep -i Docker-Content-digest | awk '{print $3}')
+echo "digest: ${digest}"
 
 # 削除を実行
-curl -k -XDELETE -H "Authorization: Bearer ${REPO_TOKEN}" \
-  "https://${CLUSTER}:8500/v2/${REPO_NAME}/manifests/${DIGEST%$'\r'}"
+curl -k -XDELETE -H "Authorization: Bearer ${repo_token}" \
+  "https://${CLUSTER}:${REGISTRY_PORT}/v2/${repo}/manifests/${digest%$'\r'}"

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -eu
+set -o pipefail
 
 CLUSTER=mycluster.icp:8500
 NAMESPACE=liberty-guide

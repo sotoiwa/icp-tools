@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -eu
+set -o pipefail
 
 # 引数がrunでなければチェックのみ
 if [ ${1:-default} != "run" ]; then
