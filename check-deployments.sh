@@ -4,16 +4,16 @@
 json=$(kubectl get deploy --all-namespaces -o json | jq -c .)
 
 # replicasとreadyReplicasが一致していないdeploymentを抽出
-fail_deployments=$(echo ${json} | jq -c '.items[] | select ( .status.replicas != .status.readyReplicas )')
+fail_workloads=$(echo ${json} | jq -c '.items[] | select ( .status.replicas != .status.readyReplicas )')
 
 # 結果を整形
-fail_deployments=$(echo ${fail_deployments} | jq -r '.metadata.namespace + "/" + .metadata.name')
+fail_workloads=$(echo ${fail_workloads} | jq -r '.metadata.namespace + "/" + .metadata.name')
 
-# fail_deployments が空文字の場合は正常
-if [ -z "${fail_deployments}" ]; then
-  echo "ICPのDeploymentが正常稼働しています。"
+# fail_workloads が空文字の場合は正常
+if [ -z "${fail_workloads}" ]; then
+  echo "全てのDeploymentが正常稼働しています。"
 else
-  for deployment in ${fail_deployments}; do
-    echo "${deployment} が正常稼働していません。"
+  for workloads in ${fail_workloads}; do
+    echo "${workloads} が正常稼働していません。"
   done
 fi

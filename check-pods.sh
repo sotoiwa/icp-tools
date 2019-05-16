@@ -17,7 +17,7 @@ fail_pods=$(echo ${fail_pods} | jq -r '.metadata.namespace + "/" + .metadata.nam
 
 # fail_pods が空文字の場合は正常
 if [ -z "${fail_pods}" ]; then
-  echo "ICPのPodが正常稼働しています。"
+  echo "全てのPodが正常稼働しています。"
 else
   for pod in ${fail_pods}; do
     echo "${pod} が正常稼働していません。"

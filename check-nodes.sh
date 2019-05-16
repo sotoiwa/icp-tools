@@ -11,7 +11,7 @@ fail_nodes=$(echo ${fail_nodes} | jq -r '.metadata.name')
 
 # fail_nodes が空文字の場合は正常
 if [ -z "${fail_nodes}" ]; then
-  echo "ICPのNodeが正常稼働しています。"
+  echo "全てのNodeが正常稼働しています。"
 else
   for node in ${fail_nodes}; do
     echo "${node} が正常稼働していません。"
