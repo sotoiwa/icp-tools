@@ -28,18 +28,24 @@ repo_and_tag=${image#*/}
 repo=${repo_and_tag%:*}
 tag=${repo_and_tag##*:}
 
-# 事前にログイン済みの前提でid_tokenを取得
-if type cloudctl > /dev/null 2>&1; then
-  id_token=$(LANG=C cloudctl tokens | grep "ID token:" | awk '{print $3}')
-elif type bx > /dev/null 2>&1; then
-  id_token=$(LANG=C bx pr tokens | grep "ID token:" | awk '{print $3}')
-else
-  echo "cloudctlまたはbxコマンドがありません" 1>&2
-  exit 1
-fi
-
+# # 事前にログイン済みの前提でid_tokenを取得
+# if type cloudctl > /dev/null 2>&1; then
+#   id_token=$(LANG=C cloudctl tokens | grep "ID token:" | awk '{print $3}')
+# elif type bx > /dev/null 2>&1; then
+#   id_token=$(LANG=C bx pr tokens | grep "ID token:" | awk '{print $3}')
+# else
+#   echo "cloudctlまたはbxコマンドがありません" 1>&2
+#   exit 1
+# fi
+#
 # id_tokenでrepo_tokenを取得
-repo_token=$(curl -s -k -H "Authorization: Bearer ${id_token}" \
+# repo_token=$(curl -s -k -H "Authorization: Bearer ${id_token}" \
+#   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
+#   | jq -r '.token')
+# echo "repo_token: ${repo_token}"
+
+# ユーザーIDとパスワードでrepo_tokenを取得
+repo_token=$(curl -s -k -u ${USERNAME}:${PASSWORD} \
   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
   | jq -r '.token')
 # echo "repo_token: ${repo_token}"
