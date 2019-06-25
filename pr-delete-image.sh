@@ -39,24 +39,24 @@ tag=${repo_and_tag##*:}
 # fi
 #
 # id_tokenでrepo_tokenを取得
-# repo_token=$(curl -s -k -H "Authorization: Bearer ${id_token}" \
+# repo_token=$(curl --http1.1 -s -k -H "Authorization: Bearer ${id_token}" \
 #   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
 #   | jq -r '.token')
 # echo "repo_token: ${repo_token}"
 
 # ユーザーIDとパスワードでrepo_tokenを取得
-repo_token=$(curl -s -k -u ${USERNAME}:${PASSWORD} \
+repo_token=$(curl --http1.1 -s -k -u ${USERNAME}:${PASSWORD} \
   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
   | jq -r '.token')
 # echo "repo_token: ${repo_token}"
 
 # 削除するイメージのダイジェストを取得する
-digest=$(curl -s -k -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+digest=$(curl --http1.1 -s -k -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
   -H "Authorization: Bearer ${repo_token}" \
   "https://${CLUSTER}:${REGISTRY_PORT}/v2/${repo}/manifests/${tag}" -v 2>&1 \
   | grep -i Docker-Content-digest | awk '{print $3}')
 echo "digest: ${digest}"
 
 # 削除を実行
-curl -k -XDELETE -H "Authorization: Bearer ${repo_token}" \
+curl --http1.1 -k -XDELETE -H "Authorization: Bearer ${repo_token}" \
   "https://${CLUSTER}:${REGISTRY_PORT}/v2/${repo}/manifests/${digest%$'\r'}"

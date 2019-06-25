@@ -11,7 +11,6 @@ USERNAME=admin
 PASSWORD=admin
 
 SKIP_IBMCOM=true
-
 CLUSTER=mycluster.icp
 REGISTRY_PORT=8500
 MGMT_INGRESS_PORT=8443
@@ -27,22 +26,24 @@ MGMT_INGRESS_PORT=8443
 # fi
 #
 # # id_tokenでcatalog_tokenを取得
-# catalog_token=$(curl -s -k -H "Authorization: Bearer ${id_token}" \
+# catalog_token=$(curl --http1.1 -s -k -H "Authorization: Bearer ${id_token}" \
 #   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=registry:catalog:*" \
 #   | jq -r '.token')
 
 # ユーザーIDとパスワードでcatalog_tokenを取得
-catalog_token=$(curl -s -k -u ${USERNAME}:${PASSWORD} \
+catalog_token=$(curl --http1.1 -s -k -u ${USERNAME}:${PASSWORD} \
   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=registry:catalog:*" \
   | jq -r '.token')
 # echo "catalog_token: ${catalog_token}"
 
 # リポジトリを取得
-repo_list=$(curl -s -k -H "Authorization: Bearer ${catalog_token}" \
-  "https://${CLUSTER}:${REGISTRY_PORT}/v2/_catalog?n=10000" | jq -r '.repositories[]')
+repos=$(curl --http1.1 -s -k -H "Authorization: Bearer ${catalog_token}" \
+  "https://${CLUSTER}:${REGISTRY_PORT}/v2/_catalog?n=10000" \
+  | jq -r '.repositories[]')
+# echo ${repos}
 
 # リポジトリ毎に繰り返し
-for repo in ${repo_list}; do
+for repo in ${repos}; do
 
   # ibmcomはスキップ
   if ${SKIP_IBMCOM:-false} && [ $(echo ${repo} | grep "ibmcom/") ]; then
@@ -50,17 +51,17 @@ for repo in ${repo_list}; do
   fi
   
   # # id_tokenでrepo_tokenを取得
-  # repo_token=$(curl -s -k -H "Authorization: Bearer ${id_token}" \
+  # repo_token=$(curl --http1.1 -s -k -H "Authorization: Bearer ${id_token}" \
   #   "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
   #   | jq -r '.token')
 
   # ユーザーIDとパスワードでrepo_tokenを取得
-  repo_token=$(curl -s -k -u ${USERNAME}:${PASSWORD} \
+  repo_token=$(curl --http1.1 -s -k -u ${USERNAME}:${PASSWORD} \
     "https://${CLUSTER}:${MGMT_INGRESS_PORT}/image-manager/api/v1/auth/token?service=token-service&scope=repository:${repo}:*" \
     | jq -r '.token')
   # echo "repo_token: ${repo_token}"
 
-  curl -s -k -H "Authorization: Bearer ${repo_token}" \
+  curl --http1.1 -s -k -H "Authorization: Bearer ${repo_token}" \
     "https://${CLUSTER}:${REGISTRY_PORT}/v2/${repo}/tags/list" \
      | jq -r 'select( .tags != null ) | "'${CLUSTER}:${REGISTRY_PORT}/${repo}:'" + .tags[]'
 
