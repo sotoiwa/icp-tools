@@ -4,7 +4,7 @@ set -eu
 set -o pipefail
 
 CLUSTER=mycluster.icp:8500
-NAMESPACE=liberty-guide
+NAMESPACE=aid-ym01
 
 # 引数の数が1でなければエラー
 if [ $# -ne 1 ]; then
