@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eu
+set -o pipefail
+
 # kubectl get nodeを実行して結果を変数に格納
 # "jq -c"は結果を改行等で整形せずコンパクトにするオプション
 json=$(kubectl get event --all-namespaces -o json | jq -c .)
@@ -11,7 +14,7 @@ warnings=$(echo ${json} | jq -c '.items
   | sort_by( .lastTimestamp )
   | .[]
   | select( .type == "Warning" )
-  | select( .lastTimestamp | now - fromdate <= 300 )'
+  | select( now - ( .lastTimestamp | fromdate ) <= 300 )'
 )
 
 # 結果を整形
