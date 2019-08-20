@@ -29,9 +29,11 @@ warnings=$(echo ${warnings} | jq -r '.lastTimestamp + " "
 if [ -z "${warnings}" ]; then
   echo "Warningはありません。"
 else
-  for warning in "${warnings}"; do
-    echo "${warnings}"
+  IFS=$'\n'
+  for warning in ${warnings}; do
+    echo "${warning}"
   done
+  unset IFS
   exit 1
 fi
 
